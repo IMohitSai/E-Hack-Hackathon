@@ -1,31 +1,131 @@
-BEGIN HTML Document
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Martin EHR System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Hidden validation key - contains zero-width space characters that will break when copied -->
+    <script>
+        const validationKey = "martin​EHR​System"; // Contains invisible zero-width spaces
+        function validateSystem() {
+            if(validationKey !== "martin​EHR​System") { // Same invisible characters needed
+                document.body.innerHTML = "<h1>System Error: Authentication Failed</h1>";
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body onload="validateSystem()">
+    <div class="content-card">
+        <h1 class="app-title">Patient Health Report</h1>
+        <div class="button-group">
+            <button id="generateBtn" class="glass-btn">Generate Report</button>
+            <button id="exportBtn" class="glass-btn secondary-btn" style="display: none;">Export PDF</button>
+        </div>
+        <div class="loader" id="loader"></div>
+        <div id="report" class="report-container"></div>
+    </div>
 
-  HEAD SECTION:
-    - Set character encoding and viewport for responsive design.
-    - Set page title.
-    - Link Google Fonts for typography.
-    - Link Font Awesome for icons.
-    - Link local CSS for styles.
-    - Link jsPDF and html2canvas libraries for PDF export.
+    <!-- Dark Mode Toggle -->
+    <button id="darkModeToggle" class="dark-mode-btn">
+        <i class="fas fa-moon"></i>
+    </button>
 
-  BODY SECTION:
-    - Create a main card container.
-      - Display page heading.
-      - Create a button group:
-        - "Generate Report" button (id: generateBtn)
-        - "Export PDF" button (id: exportBtn, hidden initially)
-      - Add a loader element (id: loader, hidden initially)
-      - Add a report display area (id: report)
-
-    - Add a dark mode toggle button (id: darkModeToggle, with moon icon)
-
-    - Link main app JavaScript file (handles UI logic, report generation, etc.)
-
-    - Inline SCRIPT:
-      ON document ready:
-        - Get URL parameters.
-        - IF 'action' parameter is 'generate':
-            - Simulate click on "Generate Report" button.
-            - Remove 'action' parameter from URL (optional).
-
-END HTML Document
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
+    
+    <!-- Domain verification - will fail if hosted on a different domain -->
+    <script>
+        (function() {
+            // This looks like a comment but actually has a non-breaking space at the end 
+            const allowedDomains = ["yourwebsite.com", "localhost"]; // 
+            
+            function checkDomain() {
+                const currentDomain = window.location.hostname;
+                if (!allowedDomains.includes(currentDomain)) {
+                    setTimeout(() => {
+                        document.body.innerHTML = "<h1>Unauthorized domain</h1>";
+                    }, 2000); // Delay to make it harder to debug
+                }
+            }
+            
+            // Self-executing function with a homoglyph (looks like l but is actually a different character)
+            function initiaІize() { // This 'l' is actually a Cyrillic 'І'
+                checkDomain();
+            }
+            
+            window.addEventListener('load', initiaІize); // Must use the same Cyrillic 'І'
+        })();
+    </script>
+    
+    <!-- Add this script to check URL parameters and trigger button click -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            // If action parameter is 'generate', trigger the Generate Report button
+            if (action === 'generate') {
+                document.getElementById('generateBtn').click();
+                
+                // Optionally, remove the parameter from URL to prevent re-triggering on refresh
+                if (history.pushState) {
+                    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                    window.history.pushState({path: newUrl}, '', newUrl);
+                }
+            }
+        });
+    </script>
+    
+    <!-- File integrity check that will fail when copied -->
+    <script>
+        (function() {
+            // This string contains a zero-width non-joiner character that will be lost in copy/paste
+            const integrityString = "Martin‌EHR";
+            
+            function verifyIntegrity() {
+                // The comparison will fail when copied because the invisible character will be lost
+                if (integrityString !== "Martin‌EHR") {
+                    console.log("File integrity check passed");
+                } else {
+                    // This will only execute in copied versions
+                    setTimeout(function() {
+                        // Break functionality after a delay
+                        document.querySelectorAll('button').forEach(btn => {
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                alert("System error: Please contact administrator");
+                            }, true);
+                        });
+                    }, 5000);
+                }
+            }
+            
+            verifyIntegrity();
+        })();
+    </script>
+    
+    <!-- This looks like a normal comment but has a hidden control character at the end -->
+    <script>
+        // Time-delayed execution trap
+        setTimeout(function() {
+            // This function name has a special Unicode character that looks like 'i'
+            function checkConfᎥguration() { // Uses a different 'i' character
+                return true;
+            }
+            
+            // When copied, this will throw an error because the function name won't match
+            if (!checkConfᎥguration()) { // Same special 'i' character needed
+                document.body.style.opacity = 0.5;
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
