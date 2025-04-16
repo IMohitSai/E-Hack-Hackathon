@@ -1,0 +1,72 @@
+START
+
+// PAGE INITIALIZATION
+Display animated health symbol background.
+Display header with title "Patient Management System".
+Display main section titled "Patient PDF Files" with description.
+IF there are PDF files:
+    FOR each PDF file:
+        Display a clickable PDF item showing:
+            - PDF icon
+            - File name
+            - Last modified date
+            - File size
+ELSE:
+    Display message: "No PDF files found in the directory."
+
+Display footer with directory path.
+
+Display hidden PDF modal for viewing PDFs.
+Display hidden loading indicator for PDF loading.
+
+Display floating chatbot button.
+Display hidden chatbot interface with:
+    - Header ("AI Assistant") and close button
+    - Preset question buttons
+    - Message area (starts with greeting from bot)
+    - Input box and send button
+
+// BACKGROUND ANIMATION LOGIC
+On page load:
+    FOR 5 times, spaced by 2 seconds each:
+        Create a random health symbol at a random position and scale in the background.
+        After 20 seconds, remove the symbol.
+
+// PDF MODAL LOGIC
+On page load:
+    FOR each PDF item:
+        ON click:
+            Show loading indicator.
+            Set PDF modal iframe source to the selected PDF.
+            Show PDF modal with animation.
+            Prevent page scrolling.
+            When PDF iframe finishes loading:
+                Hide loading indicator.
+    ON PDF modal close button click OR click outside modal content OR Escape key pressed:
+        Hide PDF modal with animation.
+        Clear PDF iframe source.
+        Restore page scrolling.
+
+// CHATBOT LOGIC
+On page load:
+    ON chatbot button click:
+        Show chatbot interface and focus input.
+    ON chatbot close button click:
+        Hide chatbot interface.
+    ON preset question button click:
+        Fill input with preset question and send message.
+    ON send button click OR Enter key pressed in input:
+        IF input is not empty:
+            Display user's message in message area.
+            Clear input.
+            Scroll messages to bottom.
+            Display "Thinking..." bot message.
+            After a short delay:
+                Remove "Thinking..." message.
+                IF message matches a trained question:
+                    Display corresponding bot response.
+                ELSE:
+                    Display default bot response asking for clarification.
+            Scroll messages to bottom.
+
+END
