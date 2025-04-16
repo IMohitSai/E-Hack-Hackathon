@@ -1,0 +1,78 @@
+START
+
+// PAGE INITIALIZATION
+Display a centered consultation interface with:
+    - Title "Consultation"
+    - Microphone button for voice input
+    - Upload button for audio files (demo only)
+    - Transcript box with instructions
+    - "Generate Report" button (initially hidden)
+    - Error message area
+    - Loading overlay for processing feedback
+
+// AUDIO UPLOAD LOGIC
+ON "Upload Audio File" button click:
+    - Trigger file input for audio selection
+
+ON audio file selected:
+    - Show loading overlay
+    - Simulate audio processing (wait 6 seconds)
+    - Hide loading overlay
+    - Display mock transcript in transcript box
+    - Show "Generate Report" button
+
+// MICROPHONE/SPEECH RECOGNITION LOGIC
+IF browser supports SpeechRecognition:
+    ON microphone button click:
+        IF not recording:
+            - Reset audio file selection
+            - Request microphone access and start speech recognition
+            - Show "Listening..." in transcript box
+            - Hide "Generate Report" button
+            - Clear error message
+        ELSE
+            - Stop recording
+
+    ON speech recognition result:
+        - Update transcript with recognized speech
+        - Display transcript in transcript box
+
+    ON speech recognition error:
+        - Show error message
+        - Stop recording
+
+    ON speech recognition end:
+        IF still recording:
+            - Stop recording
+
+    ON stop recording:
+        - Stop speech recognition
+        - Disconnect and close audio context
+        - Cancel any ongoing animation
+        IF transcript is not empty:
+            - Show "Generate Report" button
+        ELSE
+            - Show "No speech detected" message in transcript box
+
+ELSE
+    - Show error: "Your browser doesn't support speech recognition"
+
+// GENERATE REPORT LOGIC
+ON "Generate Report" button click:
+    - Disable the button and show loading spinner
+    - Show loading overlay
+    - Send transcript to backend via POST /generate_report
+    IF response is successful:
+        - Store transcript in localStorage
+        - Hide loading overlay
+        - Redirect to /app?action=generate
+    ELSE
+        - Hide loading overlay
+        - Show error message
+        - Re-enable "Generate Report" button
+
+// CUSTOM EVENTS
+ON page load:
+    - Fire custom "recognitionComplete" event (for other scripts to use)
+
+END
