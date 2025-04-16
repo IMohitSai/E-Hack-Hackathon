@@ -1,0 +1,81 @@
+START
+
+// PAGE INITIALIZATION
+Display a styled container for EHR creation.
+Show a "Back" button linking to the landing page.
+Display the patient ID from the URL parameter (or "New Patient" if absent).
+Show the page title: "Electronic Health Record Creation".
+
+// EHR FORM SECTIONS
+Display a form with the following sections:
+
+    1. Patient Demographics:
+        - Full Name (text input, required)
+        - Date of Birth (date input, required)
+        - Gender (dropdown, required)
+        - Weight (number input, required)
+        - Height (text input, required)
+
+    2. Symptoms:
+        - For each symptom entry:
+            - Symptom Description (text input, required)
+            - Duration (text input, required)
+            - Remove button (cannot remove last entry)
+        - "Add Another Symptom" button to add new symptom entries
+
+    3. Medications:
+        - For each medication entry:
+            - Medicine Name (text input, required)
+            - Dosage (text input, required)
+            - Schedule (text input, required)
+            - Remove button (cannot remove last entry)
+        - "Add Another Medication" button to add new medication entries
+
+    4. Medical Advice:
+        - For each advice entry:
+            - Advice (textarea, required)
+            - Remove button (cannot remove last entry)
+        - "Add Another Advice" button to add new advice entries
+
+    5. Additional Notes:
+        - Notes (textarea, optional)
+
+    6. Submit Button: "Save Electronic Health Record"
+
+// DYNAMIC ENTRY LOGIC
+On "Add Another Symptom" button click:
+    - Add a new symptom entry to the symptoms section
+
+On "Add Another Medication" button click:
+    - Add a new medication entry to the medications section
+
+On "Add Another Advice" button click:
+    - Add a new advice entry to the advice section
+
+On any remove button click:
+    - If more than one entry exists in the section, remove the entry
+    - Else, alert that at least one entry is required
+
+// FORM SUBMISSION
+On form submit:
+    - Prevent default form submission
+    - Collect all form data (including multiple symptoms, medications, advice)
+    - Format date of birth for display
+    - Generate an EHR preview as a styled HTML table containing:
+        - Patient demographics
+        - List of symptoms and durations
+        - List of medications, dosages, and schedules
+        - List of advice
+        - Additional notes if present
+    - Display the EHR preview section
+    - Show the "Export as PDF" button
+    - Scroll to the preview section
+
+// EXPORT AS PDF
+On "Export as PDF" button click:
+    - Show loading spinner on the button
+    - Use html2pdf.js to generate a PDF from the EHR preview section
+    - Name the PDF with patient name and current date
+    - After export, reset the button to its original state
+
+END
