@@ -1,0 +1,39 @@
+BEGIN PAGE
+
+  SETUP: Load fonts, icons, and CSS styles for all UI components and animations.
+
+  RENDER:
+    - Animated health symbol background.
+    - Patient ID card with notification and action buttons.
+    - Main glowing circle and rotating ball.
+    - Hero content: title, slogan, start button.
+    - Hidden modal for consultation mode selection.
+
+  ON PAGE LOAD:
+    - Read initial patient ID.
+    - Show/hide patient card accordingly.
+    - Save previous patient ID.
+    - Start polling latest RFID:
+      EVERY 500ms:
+        FETCH /latest_rfid
+        IF new patient ID:
+          UPDATE patient ID display.
+          Show notification dot and highlight.
+          Update all action links with new patient ID.
+          Redirect to landing page if necessary.
+
+    - Create several random background health symbols, staggered.
+    - Set interval to create new random health symbol every 8s.
+
+  ON PATIENT CARD CLICK:
+    - Hide notification dot.
+
+  ON "START CONSULTING" BUTTON CLICK:
+    - Show consultation mode modal.
+
+  IN MODAL:
+    - Clicking a mode highlights it and updates toggle.
+    - "Cancel" hides modal.
+    - "Continue" navigates to appropriate consultation page with patient ID.
+
+END PAGE
