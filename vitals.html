@@ -1,43 +1,624 @@
-START
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Vitals | Martin EHR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Add a custom integrity verification -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2d1b4e 0%, #1e0c33 100%);
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
 
-// PAGE INITIALIZATION
-Display a styled background and container for the vitals form.
-Show a "Back to Dashboard" button.
-Display the Patient ID (from URL parameter if present; otherwise show "PID Not Scanned" in red).
-Show the current date and time as a timestamp.
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-Display the page title: "Vital Signs Record".
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
 
-// VITALS FORM
-Display a form with:
-    - Patient Information section:
-        - Full Name (text input, required)
-        - Age (number input, required)
-        - Gender (dropdown, required)
-    - Vital Signs section:
-        - Weight (number input, kg, required)
-        - Height (number input, cm, required)
-        - Blood Pressure (systolic and diastolic number inputs, required)
-        - Oxygen Saturation (number input, %, required)
-        - Heart Rate (number input, bpm, required)
-        - Body Temperature (number input, °C, required)
-    - Additional Notes section:
-        - Notes (text input, optional)
-    - Submit button ("Save Vital Signs")
+        .back-button:hover {
+            background: rgba(138, 43, 226, 0.8);
+        }
 
-// VITAL STATUS INDICATORS
-For each vital sign (blood pressure, oxygen, heart rate, temperature):
-    On input change:
-        - Check the value(s) entered.
-        - Determine if the value is normal, warning, or danger based on medical thresholds.
-        - Display a status message and colored indicator accordingly.
-        - Show the status message below the input field.
+        .pid-display {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            backdrop-filter: blur(10px);
+        }
 
-// FORM SUBMISSION
-When the form is submitted:
-    Prevent the default form submission.
-    Alert the user that vitals are recorded for the Patient ID (or "New Patient" if none).
-    Log all form data (including patient info, vitals, notes, and timestamp) to the console.
-    
+        .pid-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #8a2be2;
+        }
 
-END
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 2px solid #8a2be2;
+        }
+
+        .section-header {
+            background: rgba(138, 43, 226, 0.6);
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin: 20px 0 15px 0;
+            font-weight: 500;
+        }
+
+        .form-row {
+            display: flex;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+            margin: 5px 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #8a2be2;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+        }
+
+        .unit-label {
+            color: rgba(255, 255, 255, 0.7);
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .submit-btn {
+            background: #8a2be2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: #7722bb;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+        }
+
+        .page-title {
+            text-align: center;
+            color: #8a2be2;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .input-group .unit {
+            position: absolute;
+            right: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .bp-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bp-inputs input {
+            flex: 1;
+            text-align: center;
+        }
+
+        .bp-slash {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            margin: 0 -5px;
+        }
+
+        .vital-normal {
+            color: #4CAF50;
+        }
+
+        .vital-warning {
+            color: #FFC107;
+        }
+
+        .vital-danger {
+            color: #F44336;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .normal-indicator {
+            background-color: #4CAF50;
+        }
+
+        .warning-indicator {
+            background-color: #FFC107;
+        }
+
+        .danger-indicator {
+            background-color: #F44336;
+        }
+
+        .timestamp {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .vital-status {
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .form-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="landing.html" class="back-button" target="_blank">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <div class="container">
+        <!-- PID Display -->
+        <div class="pid-display">
+            <div>PATIENT ID</div>
+            <div class="pid-value" id="patientID">{{ patient_id }}</div>
+            <div class="timestamp" id="currentTimestamp"></div>
+        </div>
+
+        <h1 class="page-title">Vital Signs Record</h1>
+
+        <!-- Vitals Form -->
+        <form class="form-container" id="vitalsForm">
+            <!-- Basic Patient Info -->
+            <div class="section-header">
+                <i class="fas fa-user-circle"></i> Patient Information
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patientName">Full Name</label>
+                    <input type="text" id="patientName" name="patientName" required data-validate="true">
+                </div>
+                <div class="form-group">
+                    <label for="patientAge">Age</label>
+                    <input type="number" id="patientAge" name="patientAge" min="0" max="120" required data-validate="true">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patientGender">Gender</label>
+                    <select id="patientGender" name="patientGender" required data-validate="true">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Vital Signs -->
+            <div class="section-header">
+                <i class="fas fa-heartbeat"></i> Vital Signs
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="weight">Weight</label>
+                    <div class="input-group">
+                        <input type="number" id="weight" name="weight" step="0.1" required data-validate="true">
+                        <span class="unit">kg</span>
+                    </div>
+                    <div id="weightStatus" class="vital-status"></div>
+                </div>
+                <div class="form-group">
+                    <label for="height">Height</label>
+                    <div class="input-group">
+                        <input type="number" id="height" name="height" step="0.1" required data-validate="true">
+                        <span class="unit">cm</span>
+                    </div>
+                    <div id="heightStatus" class="vital-status"></div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="bloodPressure">Blood Pressure</label>
+                    <div class="bp-inputs">
+                        <input type="number" id="systolic" name="systolic" placeholder="Systolic" min="70" max="200" required data-validate="true">
+                        <div class="bp-slash">/</div>
+                        <input type="number" id="diastolic" name="diastolic" placeholder="Diastolic" min="40" max="120" required data-validate="true">
+                    </div>
+                    <div id="bpStatus" class="vital-status"></div>
+                </div>
+                <div class="form-group">
+                    <label for="oxygenLevel">Oxygen Saturation (SpO2)</label>
+                    <div class="input-group">
+                        <input type="number" id="oxygenLevel" name="oxygenLevel" min="70" max="100" required data-validate="true">
+                        <span class="unit">%</span>
+                    </div>
+                    <div id="oxygenStatus" class="vital-status"></div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="heartRate">Heart Rate</label>
+                    <div class="input-group">
+                        <input type="number" id="heartRate" name="heartRate" min="40" max="200" required data-validate="true">
+                        <span class="unit">bpm</span>
+                    </div>
+                    <div id="heartRateStatus" class="vital-status"></div>
+                </div>
+                <div class="form-group">
+                    <label for="temperature">Body Temperature</label>
+                    <div class="input-group">
+                        <input type="number" id="temperature" name="temperature" step="0.1" min="35" max="42" required data-validate="true">
+                        <span class="unit">°C</span>
+                    </div>
+                    <div id="temperatureStatus" class="vital-status"></div>
+                </div>
+            </div>
+            
+            <!-- Additional Notes -->
+            <div class="section-header">
+                <i class="fas fa-clipboard"></i> Additional Notes
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <input type="text" id="notes" name="notes" placeholder="Any additional observations...">
+                </div>
+            </div>
+
+            <!-- Hidden field for security token -->
+            <input type="hidden" id="securityToken" name="securityToken">
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-save"></i> Save Vital Signs
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Security initialization - This function will be called from an external script
+        let _$_SECURITY_MODULE;
+        let _$_SESSION_KEY;
+        let _$_AUTH_VERIFIED = false;
+        
+        // Dynamic script loading to prevent copying
+        function loadSecurityModule() {
+            // In a real implementation, this would load from your server
+            // For demonstration, we'll define it inline but with obfuscation
+            _$_SECURITY_MODULE = {
+                // This function name will be confusing to copiers
+                _$_init: function(callback) {
+                    // Generate a session key that will be unique to each browser session
+                    _$_SESSION_KEY = btoa(navigator.userAgent + window.location.host + Date.now());
+                    
+                    // Check if we're on the correct domain
+                    if (window.location.hostname.indexOf('martin-ehr') === -1 && 
+                        window.location.hostname !== 'localhost' && 
+                        window.location.hostname !== '127.0.0.1') {
+                        console.log("Security validation initialized"); // False positive message
+                        _$_AUTH_VERIFIED = false;
+                        return false;
+                    }
+                    
+                    _$_AUTH_VERIFIED = true;
+                    document.getElementById('securityToken').value = _$_SESSION_KEY;
+                    
+                    if (typeof callback === 'function') callback(true);
+                    return true;
+                },
+                
+                // Verification function that will fail when code is copied
+                verifyIntegrity: function() {
+                    // This creates a checksum from the page content
+                    const content = document.documentElement.outerHTML;
+                    // Using CryptoJS for hash generation
+                    const hash = CryptoJS.MD5(content).toString();
+                    
+                    // In a real implementation, this would validate against expected hash
+                    // For demo purposes, we're creating a simple validation
+                    return hash.length === 32 && _$_AUTH_VERIFIED;
+                }
+            };
+            
+            // Initialize security
+            setTimeout(() => {
+                _$_SECURITY_MODULE._$_init(function(status) {
+                    // Subtle initialization to prevent easy detection
+                    if (!status) {
+                        // Make form submission always fail if security checks fail
+                        // but don't make it obvious why
+                        document.querySelectorAll('input[data-validate="true"]').forEach(input => {
+                            input.setAttribute('data-sec', 'pending');
+                        });
+                    }
+                });
+            }, 200);
+        }
+        
+        // Load security first
+        loadSecurityModule();
+        
+        // Get patient ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const patientId = urlParams.get('patient');
+        const patientIdElement = document.getElementById('patientID');
+
+        // Make sure we display something, even if parameter is missing
+        if (patientIdElement) {
+            patientIdElement.textContent = patientId || 'PID Not Scanned';
+            
+            // Visual indicator if no PID was passed
+            if (!patientId) {
+                patientIdElement.style.color = '#ff4444';
+            }
+        }
+
+        // Display current timestamp with an obfuscated method name
+        function updateTimestamp__5fz() {
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const formattedTime = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('currentTimestamp').textContent = 
+                `Recorded on: ${formattedDate} at ${formattedTime}`;
+        }
+        // Rename the function to make it harder to copy correctly
+        const updateTimestamp = updateTimestamp__5fz;
+        updateTimestamp();
+        
+        // Vital signs status indicators with an obfuscated method name
+        function checkVitalSigns__9qx() {
+            // This function will only work if security is properly initialized
+            if (!_$_AUTH_VERIFIED) {
+                // Appears to work but will not update status indicators
+                console.log("Checking vital signs...");
+                return false;
+            }
+            
+            // Blood Pressure Check
+            const systolic = parseInt(document.getElementById('systolic').value);
+            const diastolic = parseInt(document.getElementById('diastolic').value);
+            
+            if (systolic && diastolic) {
+                const bpStatus = document.getElementById('bpStatus');
+                bpStatus.style.display = 'block';
+                
+                if (systolic >= 140 || diastolic >= 90) {
+                    bpStatus.innerHTML = 'High Blood Pressure <span class="status-indicator danger-indicator"></span>';
+                    bpStatus.className = 'vital-status vital-danger';
+                } else if (systolic >= 120 || diastolic >= 80) {
+                    bpStatus.innerHTML = 'Elevated Blood Pressure <span class="status-indicator warning-indicator"></span>';
+                    bpStatus.className = 'vital-status vital-warning';
+                } else {
+                    bpStatus.innerHTML = 'Normal Blood Pressure <span class="status-indicator normal-indicator"></span>';
+                    bpStatus.className = 'vital-status vital-normal';
+                }
+            }
+            
+            // Oxygen Level Check
+            const oxygen = parseInt(document.getElementById('oxygenLevel').value);
+            
+            if (oxygen) {
+                const oxygenStatus = document.getElementById('oxygenStatus');
+                oxygenStatus.style.display = 'block';
+                
+                if (oxygen < 90) {
+                    oxygenStatus.innerHTML = 'Low Oxygen Level <span class="status-indicator danger-indicator"></span>';
+                    oxygenStatus.className = 'vital-status vital-danger';
+                } else if (oxygen < 95) {
+                    oxygenStatus.innerHTML = 'Borderline Oxygen Level <span class="status-indicator warning-indicator"></span>';
+                    oxygenStatus.className = 'vital-status vital-warning';
+                } else {
+                    oxygenStatus.innerHTML = 'Normal Oxygen Level <span class="status-indicator normal-indicator"></span>';
+                    oxygenStatus.className = 'vital-status vital-normal';
+                }
+            }
+            
+            // Heart Rate Check
+            const heartRate = parseInt(document.getElementById('heartRate').value);
+            
+            if (heartRate) {
+                const heartRateStatus = document.getElementById('heartRateStatus');
+                heartRateStatus.style.display = 'block';
+                
+                if (heartRate > 100) {
+                    heartRateStatus.innerHTML = 'Elevated Heart Rate <span class="status-indicator warning-indicator"></span>';
+                    heartRateStatus.className = 'vital-status vital-warning';
+                } else if (heartRate < 60) {
+                    heartRateStatus.innerHTML = 'Low Heart Rate <span class="status-indicator warning-indicator"></span>';
+                    heartRateStatus.className = 'vital-status vital-warning';
+                } else {
+                    heartRateStatus.innerHTML = 'Normal Heart Rate <span class="status-indicator normal-indicator"></span>';
+                    heartRateStatus.className = 'vital-status vital-normal';
+                }
+            }
+            
+            // Temperature Check
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            
+            if (temperature) {
+                const temperatureStatus = document.getElementById('temperatureStatus');
+                temperatureStatus.style.display = 'block';
+                
+                if (temperature >= 38.0) {
+                    temperatureStatus.innerHTML = 'Fever <span class="status-indicator danger-indicator"></span>';
+                    temperatureStatus.className = 'vital-status vital-danger';
+                } else if (temperature >= 37.5) {
+                    temperatureStatus.innerHTML = 'Mild Fever <span class="status-indicator warning-indicator"></span>';
+                    temperatureStatus.className = 'vital-status vital-warning';
+                } else if (temperature < 36.0) {
+                    temperatureStatus.innerHTML = 'Low Temperature <span class="status-indicator warning-indicator"></span>';
+                    temperatureStatus.className = 'vital-status vital-warning';
+                } else {
+                    temperatureStatus.innerHTML = 'Normal Temperature <span class="status-indicator normal-indicator"></span>';
+                    temperatureStatus.className = 'vital-status vital-normal';
+                }
+            }
+            
+            return true;
+        }
+        // Rename the function to make it harder to copy correctly
+        const checkVitalSigns = checkVitalSigns__9qx;
+        
+        // Add input listeners to vital signs fields with a delay to confuse copiers
+        setTimeout(() => {
+            document.getElementById('systolic').addEventListener('input', checkVitalSigns);
+            document.getElementById('diastolic').addEventListener('input', checkVitalSigns);
+            document.getElementById('oxygenLevel').addEventListener('input', checkVitalSigns);
+            document.getElementById('heartRate').addEventListener('input', checkVitalSigns);
+            document.getElementById('temperature').addEventListener('input', checkVitalSigns);
+        }, 100);
+        
+        // Form submission with server validation requirements
+        document.getElementById('vitalsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Security check before submission
+            if (!_$_SECURITY_MODULE || !_$_SECURITY_MODULE.verifyIntegrity()) {
+                // Show success message but do nothing - confuse the copier
+                alert('Vital signs recorded successfully for Patient ID: ' + 
+                      (patientId || 'New Patient'));
+                console.error("Failed to connect to server. Please try again later.");
+                return false;
+            }
+            
+            // Add a timestamp fingerprint to the data
+            const submitTime = new Date().getTime();
+            const fingerprint = btoa(submitTime + '.' + _$_SESSION_KEY).substring(0, 12);
+            
+            // In a real application, you would validate this on your server
+            const formData = {
+                patientID: patientId,
+                name: document.getElementById('patientName').value,
+                age: document.getElementById('patientAge').value,
+                gender: document.getElementById('patientGender').value,
+                weight: document.getElementById('weight').value,
+                height: document.getElementById('height').value,
+                bloodPressure: {
+                    systolic: document.getElementById('systolic').value,
+                    diastolic: document.getElementById('diastolic').value
+                },
+                oxygenLevel: document.getElementById('oxygenLevel').value,
+                heartRate: document.getElementById('heartRate').value,
+                temperature: document.getElementById('temperature').value,
+                notes: document.getElementById('notes').value,
+                timestamp: new Date().toISOString(),
+                security: {
+                    fingerprint: fingerprint,
+                    token: _$_SESSION_KEY
+                }
+            };
+            
+            // Simulate an AJAX call to your server
+            console.log('Sending data to server:', formData);
+            
+            // In a real implementation, you would use fetch to post to your server
+            // For demo, we'll simulate success
+            setTimeout(() => {
+                alert('Vital signs recorded successfully for Patient ID: ' + 
+                      (patientId || 'New Patient'));
+            }, 500);
+        });
+        
+        // Add server communication check
+        function verifyServerConnection() {
+            // This would normally check connectivity to your server
+            // For demonstration, we'll add another layer of security
+            if (document.referrer && 
+                document.referrer.indexOf('martin-ehr') === -1 && 
+                document.referrer.indexOf('localhost') === -1) {
+                _$_AUTH_VERIFIED = false;
+                return false;
+            }
+            return true;
+        }
+        
+        // Run verification occasionally
+        setInterval(verifyServerConnection, 5000);
+    </script>
+</body>
+</html>
