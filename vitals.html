@@ -1,0 +1,43 @@
+START
+
+// PAGE INITIALIZATION
+Display a styled background and container for the vitals form.
+Show a "Back to Dashboard" button.
+Display the Patient ID (from URL parameter if present; otherwise show "PID Not Scanned" in red).
+Show the current date and time as a timestamp.
+
+Display the page title: "Vital Signs Record".
+
+// VITALS FORM
+Display a form with:
+    - Patient Information section:
+        - Full Name (text input, required)
+        - Age (number input, required)
+        - Gender (dropdown, required)
+    - Vital Signs section:
+        - Weight (number input, kg, required)
+        - Height (number input, cm, required)
+        - Blood Pressure (systolic and diastolic number inputs, required)
+        - Oxygen Saturation (number input, %, required)
+        - Heart Rate (number input, bpm, required)
+        - Body Temperature (number input, °C, required)
+    - Additional Notes section:
+        - Notes (text input, optional)
+    - Submit button ("Save Vital Signs")
+
+// VITAL STATUS INDICATORS
+For each vital sign (blood pressure, oxygen, heart rate, temperature):
+    On input change:
+        - Check the value(s) entered.
+        - Determine if the value is normal, warning, or danger based on medical thresholds.
+        - Display a status message and colored indicator accordingly.
+        - Show the status message below the input field.
+
+// FORM SUBMISSION
+When the form is submitted:
+    Prevent the default form submission.
+    Alert the user that vitals are recorded for the Patient ID (or "New Patient" if none).
+    Log all form data (including patient info, vitals, notes, and timestamp) to the console.
+    
+
+END
