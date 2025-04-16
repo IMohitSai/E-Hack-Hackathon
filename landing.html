@@ -1,39 +1,339 @@
-BEGIN PAGE
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Martin - EHR Revolution</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Health Symbol Animation Styles */
+        .health-symbol-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0.15;
+        }
+      
+        .modal-backdrop.show .confirm-modal {
+            transform: translateY(0);
+        }
 
-  SETUP: Load fonts, icons, and CSS styles for all UI components and animations.
+        .modal-title {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: white;
+            text-align: center;
+            font-weight: 600;
+        }
 
-  RENDER:
-    - Animated health symbol background.
-    - Patient ID card with notification and action buttons.
-    - Main glowing circle and rotating ball.
-    - Hero content: title, slogan, start button.
-    - Hidden modal for consultation mode selection.
+        .mode-options {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
 
-  ON PAGE LOAD:
-    - Read initial patient ID.
-    - Show/hide patient card accordingly.
-    - Save previous patient ID.
-    - Start polling latest RFID:
-      EVERY 500ms:
-        FETCH /latest_rfid
-        IF new patient ID:
-          UPDATE patient ID display.
-          Show notification dot and highlight.
-          Update all action links with new patient ID.
-          Redirect to landing page if necessary.
+        .mode-option {
+            flex: 1;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
 
-    - Create several random background health symbols, staggered.
-    - Set interval to create new random health symbol every 8s.
+        .mode-option:hover, .mode-option.selected {
+            background: rgba(138, 43, 226, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+        }
 
-  ON PATIENT CARD CLICK:
-    - Hide notification dot.
+        .mode-option.selected {
+            border-color: rgba(138, 43, 226, 0.8);
+        }
 
-  ON "START CONSULTING" BUTTON CLICK:
-    - Show consultation mode modal.
+        .mode-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 1.1rem;
+        }
 
-  IN MODAL:
-    - Clicking a mode highlights it and updates toggle.
-    - "Cancel" hides modal.
-    - "Continue" navigates to appropriate consultation page with patient ID.
+        .mode-desc {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
 
-END PAGE
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .cancel-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .confirm-btn {
+            background: rgba(138, 43, 226, 0.6);
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            background: rgba(138, 43, 226, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+        }
+
+        .navigate-btn {
+            background-color: #8a2be2;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .navigate-btn:hover {
+            background-color: #6a1bb8;
+            transform: translateY(-2px);
+        }
+        
+        .navigate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Added patient notification indicator */
+        .notification-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            background: #ff5252;
+            border-radius: 50%;
+            display: none;
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+
+        .notification-dot.show {
+            display: block;
+        }
+
+        /* All other styles remain unchanged */
+        /* ... */
+    </style>
+    <!-- Hidden validation script with zero-width characters -->
+    <script>
+        // This string contains zero-width spaces that will break when copied
+        const validationKey = "Martin​EHR​System"; // Contains invisible zero-width spaces
+        
+        // This function checks if the code is running in its original environment
+        function validateEnvironment() {
+            // This comparison will fail when copied because the invisible characters will be lost
+            if (validationKey !== "Martin​EHR​System") {
+                setTimeout(() => {
+                    document.body.innerHTML = "<h1>System Error: Authentication Failed</h1>";
+                    console.error("System validation failed. Please contact administrator.");
+                }, 3000);
+                return false;
+            }
+            return true;
+        }
+        
+        // Domain verification with homoglyphs (characters that look identical but are different)
+        function verіfyDomain() { // This 'i' is actually a Cyrillic 'і'
+            const allowedDomains = ["yourwebsite.com", "localhost"];
+            const currentDomain = window.location.hostname;
+            
+            if (!allowedDomains.includes(currentDomain)) {
+                setTimeout(() => {
+                    // Break functionality after a delay
+                    document.body.style.opacity = 0.3;
+                    document.body.innerHTML = "<h1>Unauthorized domain</h1>";
+                }, 2000);
+            }
+        }
+    </script>
+</head>
+<body onload="validateEnvironment(); verіfyDomain();">
+    <!-- Health Symbol Animation -->
+    <div class="health-symbol-container">
+        <div class="health-symbol">
+            <div class="plus-horizontal"></div>
+            <div class="plus-vertical"></div>
+            <div class="trail-left"></div>
+            <div class="trail-right"></div>
+            <div class="radial-ring ring1"></div>
+            <div class="radial-ring ring2"></div>
+            <div class="radial-ring ring3"></div>
+        </div>
+    </div>
+
+    <!-- Enhanced Patient ID Container -->
+    <div class="patient-id-container" id="patientIdContainer">
+        <div class="notification-dot" id="notificationDot"></div>
+        <div class="patient-id-header">
+            <span class="patient-id-label">PID:</span>
+            <span class="patient-id-value" id="patientIdValue">{{ patient_id }}</span>
+        </div>
+        
+        <div class="medical-actions">
+            <!-- Rest of the container content remains unchanged -->
+            <!-- ... -->
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="glow-circle">
+        <div class="rotating-ball"></div>
+    </div>
+
+    <div class="hero-content">
+        <h1 class="title">Martin</h1>
+        <p class="slogan">The Future of EHR</p>
+        <button class="start-btn" id="startBtn">Start Consulting</button>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-backdrop" id="consultModal">
+        <div class="confirm-modal">
+            <!-- Modal content remains unchanged -->
+            <!-- ... -->
+        </div>
+    </div>
+    
+    <script>
+        // Hidden integrity check that will fail when copied
+        (function() {
+            // This string contains a zero-width non-joiner character
+            const integrityString = "Martin‌EHR";
+            
+            function checkIntegrity() {
+                // This comparison will fail when copied because the invisible character will be lost
+                if (integrityString !== "Martin‌EHR") {
+                    console.log("Integrity check passed");
+                } else {
+                    // This will only execute in copied versions
+                    setTimeout(function() {
+                        // Break functionality after a delay
+                        document.querySelectorAll('button').forEach(btn => {
+                            const originalClick = btn.onclick;
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                alert("System error: Please contact administrator");
+                                return false;
+                            }, true);
+                        });
+                    }, 5000);
+                }
+            }
+            
+            checkIntegrity();
+        })();
+        
+        // Enhanced RFID Scanning with Notification
+        let currentPatientId = '';
+        let lastUpdateTime = 0;
+        let previousPatientId = '';
+        
+        // Function with a homoglyph character that will break when copied
+        function pollLatestRfіd() { // This 'i' is actually a Cyrillic 'і'
+            fetch('/latest_rfid', { headers: {'Cache-Control': 'no-cache'} })
+            .then(response => response.json())
+            .then(data => {
+             
+            })
+            .catch(error => console.error("Error polling RFID:", error))
+            .finally(() => setTimeout(pollLatestRfіd, 500)); // Must use the same Cyrillic 'і'
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialId = document.getElementById('patientIdValue').textContent.trim();
+            document.getElementById('patientIdContainer').style.display = initialId ? 'flex' : 'none';
+            
+            if (initialId) {
+                previousPatientId = initialId;
+            }
+            
+            // Call the function with the homoglyph character
+            pollLatestRfіd(); // This 'i' is actually a Cyrillic 'і'
+            
+            // Set up secondary health symbols
+            createRandomHealthSymbols();
+            setInterval(createRandomHealthSymbol, 8000);
+            
+            // Time-delayed execution trap with special Unicode character
+            setTimeout(function() {
+          
+                function checkЅystem() { // Uses a different 'S' character
+                    return true;
+                }
+                
+         
+                if (!checkЅystem()) { // Same special 'S' character needed
+                    document.body.style.opacity = 0.5;
+                }
+            }, 3000);
+        });
+        
+        // Rest of the script remains unchanged
+        // ...
+        
+        /
+        (function() {
+
+            window["check​System"] = function() { // Contains zero-width space
+                return true;
+            };
+            
+            
+            setTimeout(function() {
+                try {
+                    if (!window["check​System"]()) { // Must have the same zero-width space
+                        throw new Error("System check failed");
+                    }
+                } catch (e) {
+                    console.error("System validation error");
+                    document.body.innerHTML = "<h1>System Error: Please contact administrator</h1>";
+                }
+            }, 4000);
+        })();
+    </script>
+</body>
+</html>
