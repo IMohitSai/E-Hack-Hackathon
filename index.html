@@ -1,0 +1,31 @@
+BEGIN HTML Document
+
+  HEAD SECTION:
+    - Set character encoding and viewport for responsive design.
+    - Set page title.
+    - Link Google Fonts for typography.
+    - Link Font Awesome for icons.
+    - Link local CSS for styles.
+    - Link jsPDF and html2canvas libraries for PDF export.
+
+  BODY SECTION:
+    - Create a main card container.
+      - Display page heading.
+      - Create a button group:
+        - "Generate Report" button (id: generateBtn)
+        - "Export PDF" button (id: exportBtn, hidden initially)
+      - Add a loader element (id: loader, hidden initially)
+      - Add a report display area (id: report)
+
+    - Add a dark mode toggle button (id: darkModeToggle, with moon icon)
+
+    - Link main app JavaScript file (handles UI logic, report generation, etc.)
+
+    - Inline SCRIPT:
+      ON document ready:
+        - Get URL parameters.
+        - IF 'action' parameter is 'generate':
+            - Simulate click on "Generate Report" button.
+            - Remove 'action' parameter from URL (optional).
+
+END HTML Document
