@@ -32,14 +32,6 @@ Initial skepticism was natural. With hands-on demos and real-time benefits, adop
 - ### Technologies we used
   The technical methodology behind our solution is a harmonious integration of hardware and software to automate the generation of Electronic Health Record (EHR) with Gen AI. The hardware configuration includes pieces such as an ESP32 microcontroller, RC522 RFID scanner, RFID cards, buzzer, breadboard, power and data cables, all neatly arranged to be worn on the healthcare provider's neck. When an RFID card belonging to a patient is touched, the system is made to open the EHR of the patient and initiates a generative AI-based transcriber on an attached laptop. The software stack consists of a web-based text-to-speech application, Python, Arduino IDE, and web technologies such as HTML, CSS, and JavaScript. It also uses generative AI models and Kaggle pharmaceutical datasets, as well as natural language processing (NLP) to check prescribed medication, guaranteeing accurate and up-to-date EHR documentation when interacting with patients.
 
-
-- ### Links
-  https://github.com/Dushyant1106/Dayzero-Hackathon/tree/main
-
-  
-- ### Video demo
-  https://drive.google.com/file/d/1OMrMPCv1QCvBlHS1kPGgpZE42HsMXavI/view?usp=sharing
-
   
 - ### [*Cover image*](./Coverimage.pdf)
 
